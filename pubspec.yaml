@@ -1,17 +1,14 @@
 name: backend_alex
-description: Servidor backend en Dart
+description: Servidor backend en Dart con Shelf y WebSocket
 version: 1.0.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
-
 dependencies:
-  flutter:
-    sdk: flutter
+  shelf: ^1.4.1
+  shelf_web_socket: ^1.0.3
+  web_socket_channel: ^2.4.0
 
-  shelf: ^1.4.2
-  shelf_router: ^1.1.4
-  shelf_web_socket: ^3.0.0
-  web_socket_channel: ^3.0.3
-
+dev_dependencies:
+  lints: ^3.0.0

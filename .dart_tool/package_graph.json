@@ -7,41 +7,36 @@
       "name": "backend_alex",
       "version": "1.0.0",
       "dependencies": [
-        "flutter",
         "shelf",
-        "shelf_router",
         "shelf_web_socket",
         "web_socket_channel"
       ],
-      "devDependencies": []
+      "devDependencies": [
+        "lints"
+      ]
+    },
+    {
+      "name": "lints",
+      "version": "3.0.0",
+      "dependencies": []
     },
     {
       "name": "web_socket_channel",
-      "version": "3.0.3",
+      "version": "2.4.5",
       "dependencies": [
         "async",
         "crypto",
         "stream_channel",
-        "web",
-        "web_socket"
+        "web"
       ]
     },
     {
       "name": "shelf_web_socket",
-      "version": "3.0.0",
+      "version": "1.0.4",
       "dependencies": [
         "shelf",
         "stream_channel",
         "web_socket_channel"
-      ]
-    },
-    {
-      "name": "shelf_router",
-      "version": "1.1.4",
-      "dependencies": [
-        "http_methods",
-        "meta",
-        "shelf"
       ]
     },
     {
@@ -57,27 +52,8 @@
       ]
     },
     {
-      "name": "flutter",
-      "version": "0.0.0",
-      "dependencies": [
-        "characters",
-        "collection",
-        "material_color_utilities",
-        "meta",
-        "sky_engine",
-        "vector_math"
-      ]
-    },
-    {
-      "name": "web_socket",
-      "version": "1.0.1",
-      "dependencies": [
-        "web"
-      ]
-    },
-    {
       "name": "web",
-      "version": "1.1.1",
+      "version": "0.5.1",
       "dependencies": []
     },
     {
@@ -101,16 +77,6 @@
         "collection",
         "meta"
       ]
-    },
-    {
-      "name": "meta",
-      "version": "1.16.0",
-      "dependencies": []
-    },
-    {
-      "name": "http_methods",
-      "version": "1.1.1",
-      "dependencies": []
     },
     {
       "name": "stack_trace",
@@ -140,33 +106,16 @@
       "dependencies": []
     },
     {
-      "name": "sky_engine",
-      "version": "0.0.0",
-      "dependencies": []
-    },
-    {
-      "name": "vector_math",
-      "version": "2.1.4",
-      "dependencies": []
-    },
-    {
-      "name": "material_color_utilities",
-      "version": "0.11.1",
-      "dependencies": [
-        "collection"
-      ]
-    },
-    {
-      "name": "characters",
-      "version": "1.4.0",
-      "dependencies": []
-    },
-    {
       "name": "typed_data",
       "version": "1.4.0",
       "dependencies": [
         "collection"
       ]
+    },
+    {
+      "name": "meta",
+      "version": "1.16.0",
+      "dependencies": []
     },
     {
       "name": "string_scanner",
