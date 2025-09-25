@@ -1,0 +1,1 @@
+ C:\\Users\\carpi\\OneDrive\\Escritorio\\App-Alex\\app_alex\\.dart_tool\\flutter_build\\222405e5b1ed1fc9fd0f936b6ee62989\\dart_build_result.json: 
