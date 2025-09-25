@@ -3,22 +3,22 @@ FROM dart:stable AS build
 
 WORKDIR /app
 
-# Copiar pubspec y resolver dependencias en Linux
-COPY pubspec.yaml ./
+# Copiar pubspec.* primero (para aprovechar cache de Docker)
+COPY pubspec.* ./
+
+# Instalar dependencias dentro del contenedor
 RUN dart pub get
 
-# Copiar el resto del código
+# Copiar el resto del proyecto (sin .dart_tool ni .pub-cache gracias al .dockerignore)
 COPY . .
 
 # Compilar a ejecutable nativo
 RUN dart compile exe bin/server.dart -o bin/server
 
-# Imagen final mínima
-FROM debian:bullseye-slim
-WORKDIR /app
+# Imagen final liviana
+FROM scratch
 
-# Copiar el ejecutable desde la etapa de build
-COPY --from=build /app/bin/server /app/bin/server
+COPY --from=build /runtime/ /
+COPY --from=build /app/bin/server /app/bin/
 
-EXPOSE 8080
 CMD ["/app/bin/server"]
