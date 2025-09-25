@@ -32,11 +32,15 @@ class BackendConnector {
       try {
         final body = await request.readAsString();
         final data = jsonDecode(body);
-        final intent = data['request']?['intent']?['name'] ?? "UnknownIntent";
-        final nombre = data['request']?['intent']?['nombre'] ?? "";
-        final prioridad = data['request']?['intent']?['prioridad'] ?? "";
-        final habitacion = data['request']?['intent']?['habitacion'] ?? "";
-        final necesidad = data['request']?['intent']?['necesidad'] ?? "";
+
+        final slots = data['request']?['intent']?['slots'] ?? {};
+          final nombre = slots['nombre']?['value'] ?? "";
+          final prioridad = slots['prioridad']?['value'] ?? "2";
+          final habitacion = slots['habitacion']?['value'] ?? "";
+          final necesidad = slots['necesidad']?['value'] ?? "";
+
+
+
 
         final nuevaPeticion = Peticion(
           name: nombre,
@@ -70,7 +74,7 @@ class BackendConnector {
             "shouldEndSession": true,
             "outputSpeech": {
               "type": "PlainText",
-              "text": "Ejecutando comando $intent"
+              "text": "Ejecutando comando $slots"
             }
           }
         };
