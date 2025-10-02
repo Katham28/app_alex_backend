@@ -68,16 +68,19 @@ class BackendConnector {
             }));
           }
 
-        final response = {
-          "version": "1.0",
-          "response": {
-            "shouldEndSession": true,
-            "outputSpeech": {
-              "type": "PlainText",
-              "text": "Ejecutando comando $slots"
-            }
-          }
-        };
+final speakText =
+        "Entendido, he registrado la petición $necesidad para $nombre en la habitación $habitacion con prioridad $prioridad.";
+
+    final response = {
+      "version": "1.0",
+      "response": {
+        "shouldEndSession": true,
+        "outputSpeech": {
+          "type": "PlainText",
+          "text": speakText
+        }
+      }
+    };
 
         return Response.ok(
           jsonEncode(response),
