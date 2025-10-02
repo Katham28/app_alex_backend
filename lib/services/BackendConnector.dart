@@ -49,6 +49,7 @@ class BackendConnector {
           peticion: necesidad,
         );
 
+      print(data);
       print('Nueva petición recibida: $nuevaPeticion');
         peticiones.add(nuevaPeticion);
 
