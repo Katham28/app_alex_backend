@@ -49,7 +49,15 @@ class BackendConnector {
           peticion: necesidad,
         );
 
-      print(data);
+      print (data);
+
+
+        slots.forEach((key, value) {
+          print("Slot: $key, valor: ${value['value']}");
+        });
+  
+
+
       print('Nueva petición recibida: $nuevaPeticion');
         peticiones.add(nuevaPeticion);
 
