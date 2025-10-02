@@ -10,13 +10,10 @@ class BackendConnector {
   final clients = <WebSocketChannel>[];
   final List<Peticion> peticiones = [];
 
-  // 🔹 Notificador de cambios
   final _peticionesController = StreamController<List<Peticion>>.broadcast();
   Stream<List<Peticion>> get peticionesStream => _peticionesController.stream;
 
   Future<void> start(int port) async {
-
-    
     final wsHandler = webSocketHandler((WebSocketChannel socket, String? protocol) {
       clients.add(socket);
       socket.stream.listen(
@@ -26,48 +23,73 @@ class BackendConnector {
       );
     });
 
-    
-
     Future<Response> alexaHandler(Request request) async {
       try {
         final body = await request.readAsString();
         final data = jsonDecode(body);
 
-        final slots = data['request']?['intent']?['slots'] ?? {};
-          final nombre = slots['nombre']?['value'] ?? "";
-          final prioridad = slots['prioridad']?['value'] ?? "2";
-          final habitacion = slots['habitacion']?['value'] ?? "";
-          final necesidad = slots['necesidad']?['value'] ?? "";
+        print("Request crudo de Alexa:");
+        print(data);
 
+        // Solo procesamos IntentRequest
+        final requestType = data['request']?['type'];
+        if (requestType != 'IntentRequest') {
+          return Response.ok(
+            jsonEncode({
+              "version": "1.0",
+              "response": {
+                "shouldEndSession": false,
+                "outputSpeech": {
+                  "type": "PlainText",
+                  "text": "Bienvenido a Petición Médica. ¿Qué necesitas?"
+                }
+              }
+            }),
+            headers: {"Content-Type": "application/json"},
+          );
+        }
 
+        final intent = data['request']['intent'];
+        final slots = intent['slots'] ?? {};
+        final nombre = slots['nombre']?['value'] ?? "";
+        final prioridad = slots['prioridad']?['value'] ?? "";
+        final habitacion = slots['habitacion']?['value'] ?? "";
+        final necesidad = slots['necesidad']?['value'] ?? "";
 
-
-        final nuevaPeticion = Peticion(
-          name: nombre,
-          habitacion: habitacion,
-          prioridad: int.tryParse(prioridad) ?? 2,
-          peticion: necesidad,
-        );
-
-      print (data);
-
-
+        // Imprimir slots
         slots.forEach((key, value) {
           print("Slot: $key, valor: ${value['value']}");
         });
-  
 
+        // Verificar slots faltantes y preguntar
+        String speakText;
+        bool endSession = false;
 
-      print('Nueva petición recibida: $nuevaPeticion');
-        peticiones.add(nuevaPeticion);
+        if (necesidad.isEmpty) {
+          speakText = "¿Cuál es la necesidad del paciente?";
+        } else if (nombre.isEmpty) {
+          speakText = "¿Cuál es el nombre del paciente?";
+        } else if (habitacion.isEmpty) {
+          speakText = "¿En qué habitación está el paciente?";
+        } else if (prioridad.isEmpty) {
+          speakText = "¿Cuál es la prioridad de la petición?";
+        } else {
+          // Todos los slots están completos, registrar petición
+          final nuevaPeticion = Peticion(
+            name: nombre,
+            habitacion: habitacion,
+            prioridad: int.tryParse(prioridad) ?? 2,
+            peticion: necesidad,
+          );
 
-        // 🔹 Notificamos a los que escuchan
-        _peticionesController.add(List.from(peticiones));
+          print('Nueva petición registrada: $nuevaPeticion');
+          peticiones.add(nuevaPeticion);
+          _peticionesController.add(List.from(peticiones));
 
-        // reenviar a las apps conectadas por WS
+          // Notificar WS
           for (var client in clients) {
             client.sink.add(jsonEncode({
-              'type': 'new_peticion',       // indica que es una nueva petición
+              'type': 'new_peticion',
               'data': {
                 'name': nuevaPeticion.name,
                 'habitacion': nuevaPeticion.habitacion,
@@ -77,19 +99,18 @@ class BackendConnector {
             }));
           }
 
-final speakText =
-        "Entendido, he registrado la petición $necesidad para $nombre en la habitación $habitacion con prioridad $prioridad.";
-
-    final response = {
-      "version": "1.0",
-      "response": {
-        "shouldEndSession": true,
-        "outputSpeech": {
-          "type": "PlainText",
-          "text": speakText
+          speakText =
+              "Entendido, he registrado la petición $necesidad para $nombre en la habitación $habitacion con prioridad $prioridad.";
+          endSession = true;
         }
-      }
-    };
+
+        final response = {
+          "version": "1.0",
+          "response": {
+            "shouldEndSession": endSession,
+            "outputSpeech": {"type": "PlainText", "text": speakText}
+          }
+        };
 
         return Response.ok(
           jsonEncode(response),
@@ -115,7 +136,5 @@ final speakText =
 
     final server = await io.serve(handler, '0.0.0.0', port);
     print('Servidor escuchando en http://${server.address.host}:${server.port}');
-
-    
   }
 }
