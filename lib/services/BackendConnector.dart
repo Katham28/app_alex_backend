@@ -75,10 +75,22 @@ class BackendConnector {
           speakText = "¿Cuál es la prioridad de la petición?";
         } else {
           // Todos los slots están completos, registrar petición
+
+          int pri=0;
+           if (prioridad == 'alta'){
+
+            pri = 3;
+           }
+          else if (prioridad == 'media'){
+            pri = 2;
+          } else{
+            pri = 1;
+          } 
+
           final nuevaPeticion = Peticion(
             name: nombre,
             habitacion: habitacion,
-            prioridad: int.tryParse(prioridad) ?? 2,
+            prioridad: pri ?? 1,
             peticion: necesidad,
           );
 
