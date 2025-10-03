@@ -31,7 +31,6 @@ class BackendConnector {
         print("Request crudo de Alexa:");
         print(data);
 
-        // Solo procesamos IntentRequest
         final requestType = data['request']?['type'];
         if (requestType != 'IntentRequest') {
           return Response.ok(
@@ -41,7 +40,7 @@ class BackendConnector {
                 "shouldEndSession": false,
                 "outputSpeech": {
                   "type": "PlainText",
-                  "text": "Bienvenido a Petición Médica. ¿Qué necesitas?"
+                  "text": "Bienvenido a Petición Médica. ¿Cuál es la necesidad del paciente?"
                 }
               }
             }),
@@ -51,17 +50,31 @@ class BackendConnector {
 
         final intent = data['request']['intent'];
         final slots = intent['slots'] ?? {};
-        final nombre = slots['nombre']?['value'] ?? "";
-        final prioridad = slots['prioridad']?['value'] ?? "";
-        final habitacion = slots['habitacion']?['value'] ?? "";
-        final necesidad = slots['necesidad']?['value'] ?? "";
 
-        // Imprimir slots
-        slots.forEach((key, value) {
-          print("Slot: $key, valor: ${value['value']}");
-        });
+        // 🧠 Recuperamos estado de sesión
+        final sessionAttributes =
+            Map<String, dynamic>.from(data['session']?['attributes'] ?? {});
 
-        // Verificar slots faltantes y preguntar
+        // Guardamos lo nuevo que venga en este turno
+        if (slots['nombre']?['value'] != null) {
+          sessionAttributes['nombre'] = slots['nombre']['value'];
+        }
+        if (slots['prioridad']?['value'] != null) {
+          sessionAttributes['prioridad'] = slots['prioridad']['value'];
+        }
+        if (slots['habitacion']?['value'] != null) {
+          sessionAttributes['habitacion'] = slots['habitacion']['value'];
+        }
+        if (slots['necesidad']?['value'] != null) {
+          sessionAttributes['necesidad'] = slots['necesidad']['value'];
+        }
+
+        final nombre = sessionAttributes['nombre'] ?? "";
+        final prioridad = sessionAttributes['prioridad'] ?? "";
+        final habitacion = sessionAttributes['habitacion'] ?? "";
+        final necesidad = sessionAttributes['necesidad'] ?? "";
+
+        // 🔄 Preguntar lo que falte
         String speakText;
         bool endSession = false;
 
@@ -72,25 +85,17 @@ class BackendConnector {
         } else if (habitacion.isEmpty) {
           speakText = "¿En qué habitación está el paciente?";
         } else if (prioridad.isEmpty) {
-          speakText = "¿Cuál es la prioridad de la petición?";
+          speakText = "¿Cuál es la prioridad de la petición? Puede ser alta, media o baja.";
         } else {
-          // Todos los slots están completos, registrar petición
-
-          int pri=0;
-           if (prioridad == 'alta'){
-
-            pri = 3;
-           }
-          else if (prioridad == 'media'){
-            pri = 2;
-          } else{
-            pri = 1;
-          } 
+          // ✅ Todos completos
+          int pri = 1;
+          if (prioridad.toLowerCase() == 'alta') pri = 3;
+          else if (prioridad.toLowerCase() == 'media') pri = 2;
 
           final nuevaPeticion = Peticion(
             name: nombre,
             habitacion: habitacion,
-            prioridad: pri ?? 1,
+            prioridad: pri,
             peticion: necesidad,
           );
 
@@ -118,6 +123,7 @@ class BackendConnector {
 
         final response = {
           "version": "1.0",
+          "sessionAttributes": sessionAttributes, // 👈 guardamos progreso
           "response": {
             "shouldEndSession": endSession,
             "outputSpeech": {"type": "PlainText", "text": speakText}
